@@ -1,33 +1,19 @@
-from flask import Flask, render_template, Response, jsonify
-import threading
+from flask import Flask, render_template, jsonify, request
+import base64
+import cv2
+import numpy as np
 from main_ml import MLGestureVideoController
 
 app = Flask(__name__)
 
-# Initialize gesture controller
+# Initialize gesture controller (no camera needed now)
 try:
     gesture_controller = MLGestureVideoController()
-    gesture_controller.initialize_camera()
+    # Don't initialize camera - we'll process frames from client
     print("✓ Gesture controller initialized")
 except Exception as e:
     print(f"❌ Failed to initialize gesture controller: {e}")
     gesture_controller = None
-
-# Thread lock for camera access
-camera_lock = threading.Lock()
-
-def gen_frames():
-    """Generate frames for video streaming."""
-    if gesture_controller is None:
-        return
-    
-    while True:
-        with camera_lock:
-            frame = gesture_controller.get_frame_for_web()
-        
-        if frame is not None:
-            yield (b'--frame\r\n'
-                   b'Content-Type: image/jpeg\r\n\r\n' + frame + b'\r\n')
 
 @app.route('/')
 def index():
@@ -41,40 +27,51 @@ def control():
         return "Error: Gesture controller not initialized. Please check model files.", 500
     return render_template('control.html')
 
-@app.route('/video_feed')
-def video_feed():
-    """Video streaming route."""
-    return Response(gen_frames(),
-                    mimetype='multipart/x-mixed-replace; boundary=frame')
-
-@app.route('/get_gesture')
-def get_gesture():
-    """Get current gesture state as JSON."""
+@app.route('/process_frame', methods=['POST'])
+def process_frame():
+    """Process frame from client-side camera."""
     if gesture_controller is None:
         return jsonify({
             'gesture': 'Controller not initialized',
             'confidence': 0,
             'video_state': 'error',
-            'video_position': '00:00',
-            'status': 'Error'
-        })
+            'video_position': '00:00'
+        }), 500
     
-    with camera_lock:
-        state = gesture_controller.get_state()
-    
-    return jsonify(state)
+    try:
+        # Get image data from request
+        data = request.json
+        image_data = data['image'].split(',')[1]  # Remove "data:image/jpeg;base64,"
+        
+        # Decode base64 to image
+        img_bytes = base64.b64decode(image_data)
+        nparr = np.frombuffer(img_bytes, np.uint8)
+        frame = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+        
+        if frame is None:
+            return jsonify({'error': 'Failed to decode image'}), 400
+        
+        # Process frame with gesture controller
+        # You'll need to modify your MLGestureVideoController to have a method
+        # that processes a single frame instead of reading from camera
+        state = gesture_controller.process_frame(frame)
+        
+        return jsonify(state)
+        
+    except Exception as e:
+        print(f"Error processing frame: {e}")
+        return jsonify({'error': str(e)}), 500
 
 @app.route('/reset_controller')
 def reset_controller():
     """Reset the gesture controller state."""
     if gesture_controller:
-        with camera_lock:
-            gesture_controller.video_state = 'paused'
-            gesture_controller.video_position = 0
-            gesture_controller.current_gesture = 'unknown'
-            gesture_controller.gesture_confidence = 0.0
-            gesture_controller.gesture_hold_start = None
-            gesture_controller.last_held_gesture = 'unknown'
+        gesture_controller.video_state = 'paused'
+        gesture_controller.video_position = 0
+        gesture_controller.current_gesture = 'unknown'
+        gesture_controller.gesture_confidence = 0.0
+        gesture_controller.gesture_hold_start = None
+        gesture_controller.last_held_gesture = 'unknown'
         return jsonify({'status': 'reset'})
     return jsonify({'status': 'error'}), 500
 
@@ -93,9 +90,6 @@ if __name__ == '__main__':
     print("="*60 + "\n")
     
     try:
-        app.run(debug=True, threaded=True, use_reloader=False)
+        app.run(debug=True, threaded=True, use_reloader=False, host='0.0.0.0')
     except KeyboardInterrupt:
         print("\n✓ Server stopped")
-    finally:
-        if gesture_controller and hasattr(gesture_controller, 'cap'):
-            gesture_controller.cap.release()

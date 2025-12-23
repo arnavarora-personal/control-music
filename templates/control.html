@@ -20,7 +20,9 @@
         <div class="main-content">
             <div class="video-section">
                 <div class="video-container">
-                    <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                    <!-- Changed from img to video element -->
+                    <video id="webcam" autoplay playsinline></video>
+                    <canvas id="canvas" style="display:none;"></canvas>
                     <div class="gesture-overlay">
                         <span id="detected-gesture">No gesture detected</span>
                     </div>
@@ -69,6 +71,6 @@
         </div>
     </div>
 
-    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/gesture-client.js') }}"></script>
 </body>
 </html>
