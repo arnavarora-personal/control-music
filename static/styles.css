@@ -152,6 +152,13 @@ body {
   width: 100%;
   display: block;
 }
+.video-section .video-container #webcam {
+  width: 100%;
+  display: block;
+}
+.video-section .video-container #canvas {
+  display: none;
+}
 .video-section .video-container .gesture-overlay {
   position: absolute;
   bottom: 0;
