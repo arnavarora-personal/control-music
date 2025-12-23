@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Gesture Music Control</title>
+</head>
+<body>
+    <div class="container">
+        <header class="hero">
+            <h1 class="title">🎵 Gesture Music Control</h1>
+            <p class="subtitle">Control your music with hand gestures</p>
+            <a href="{{ url_for('control') }}" class="btn-primary">Start Controlling</a>
+        </header>
+        
+        <section class="features">
+            <div class="feature-card">
+                <div class="icon">✌️</div>
+                <h3>Peace sign Up/Down to Play/Pause</h3>
+                <p>Simple signs controls playback</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">👍👎</div>
+                <h3>Thumbs up/down to seek forward/backward</h3>
+                <p>Thumbs up or down to skip or rewind 30s in music</p>
+            </div>
+            <div class="feature-card">
+                <div class="icon">🔜</div>
+                <h3>Volume gestures coming soon</h3>
+                <p>Adjust volume with hand movements</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>

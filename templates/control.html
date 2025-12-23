@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <title>Gesture Control</title>
+</head>
+<body>
+    <div class="control-container">
+        <header class="control-header">
+            <a href="{{ url_for('index') }}" class="back-btn">← Back</a>
+            <h2>Gesture Video Control</h2>
+            <div class="status-indicator" id="status">
+                <span class="status-dot"></span>
+                <span>Ready</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="video-section">
+                <div class="video-container">
+                    <img id="video-feed" src="{{ url_for('video_feed') }}" alt="Camera Feed">
+                    <div class="gesture-overlay">
+                        <span id="detected-gesture">No gesture detected</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="music-section">
+                <div class="now-playing">
+                    <h3>Video Controller</h3>
+                    <div class="track-info">
+                        <h4>Hold gesture for 3 seconds</h4>
+                        <p>ML-Powered Hand Gesture Recognition</p>
+                    </div>
+                </div>
+
+                <div class="controls-display">
+                    <div class="control-item">
+                        <span class="control-label">Video Position</span>
+                        <span class="status-text" id="video-position">00:00</span>
+                    </div>
+                    
+                    <div class="control-item">
+                        <span class="control-label">Confidence</span>
+                        <span id="confidence-percent">0%</span>
+                    </div>
+                    
+                    <div class="control-item">
+                        <span class="control-label">Status</span>
+                        <span class="status-text" id="playback-status">Paused</span>
+                    </div>
+                </div>
+
+                <div class="gesture-guide">
+                    <h4>Gesture Guide</h4>
+                    <ul>
+                        <li><strong>Two Fingers Up:</strong> Play ▶️</li>
+                        <li><strong>Two Fingers Down:</strong> Pause ⏸️</li>
+                        <li><strong>Thumbs Up 👍:</strong> Fast Forward 30s</li>
+                        <li><strong>Thumbs Down 👎:</strong> Rewind 30s</li>
+                    </ul>
+                    <p style="margin-top: 1rem; color: #f59e0b; font-size: 0.9rem;">
+                        💡 Hold each gesture for 3 seconds to activate
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

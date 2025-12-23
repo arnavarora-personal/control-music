@@ -1,0 +1,3 @@
+Best Model: svm
+Accuracy: 97.50%
+Gestures: play, pause, rewind, fast_forward
